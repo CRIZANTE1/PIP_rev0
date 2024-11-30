@@ -3,13 +3,13 @@ from operations.front import front_page
 
 def configurar_pagina():
     st.set_page_config(
-        page_title="Calculadora de Guindaste",
+        page_title="Calculadora de Movimentação de Carga",
         page_icon="🏗️",
         layout="wide",
         initial_sidebar_state="auto",
         menu_items={
             'Get Help': 'https://www.streamlit.io/community',
-            'Report a bug': "***********",
+            'Report a bug': "mailto:cristianfc2015@hotmail.com",
             'About': """
             ## Calculadora de Carga para Guindauto
             
