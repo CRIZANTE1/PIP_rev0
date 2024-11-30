@@ -236,7 +236,7 @@ def front_page():
             
             # Mensagem informativa que atualiza instantaneamente
             if estado_equipamento == "Novo":
-                st.info("✨ Margem de segurança: 10% (equipamento novo)")
+                st.info("⚠️ Margem de segurança: 10% (equipamento novo)")
             else:
                 st.warning("⚠️ Margem de segurança: 25% (equipamento usado)")
 
@@ -250,7 +250,7 @@ def front_page():
                     min_value=0.0,
                     step=100.0,
                     value=0.0,
-                    help="Digite o peso principal do objeto a ser içado"
+                    help=" Peso do objeto principal a ser içado, sem incluir acessórios ou cabos"
                 )
 
             with col2:
@@ -259,7 +259,7 @@ def front_page():
                     min_value=0.0,
                     step=1.0,
                     value=0.0,
-                    help="Peso total de cintas, grilhetas e outros acessórios"
+                    help="Peso total de todos os equipamentos auxiliares como cintas, grilhetas, manilhas, etc."
                 )
                 
                 st.info("ℹ️ O peso dos cabos será calculado automaticamente como 3% do peso a considerar")
@@ -271,11 +271,11 @@ def front_page():
             with col3:
                 fabricante = st.text_input(
                     "Fabricante do Guindaste",
-                    help="Nome do fabricante do equipamento"
+                    help=" Nome da empresa que fabricou o guindaste (ex: Liebherr, Manitowoc, etc.)"
                 )
                 modelo = st.text_input(
                     "Modelo do Guindaste",
-                    help="Modelo específico do guindaste"
+                    help=" Código ou nome do modelo específico do guindaste (ex: LTM 1100, GMK 5220)"
                 )
                 
                 raio_max = st.number_input(
@@ -283,7 +283,7 @@ def front_page():
                     min_value=0.0,
                     step=0.1,
                     value=0.0,
-                    help="Distância do centro de rotação até a carga"
+                    help=" Distância horizontal máxima do centro do guindaste até o ponto de içamento"
                 )
 
             with col4:
@@ -292,7 +292,7 @@ def front_page():
                     min_value=0.0,
                     step=100.0,
                     value=0.0,
-                    help="Capacidade máxima de içamento no raio especificado"
+                    help=" Peso máximo que o guindaste pode levantar na distância horizontal especificada"
                 )
                 
                 alcance_max = st.number_input(
@@ -300,7 +300,7 @@ def front_page():
                     min_value=0.0,
                     step=0.1,
                     value=0.0,
-                    help="Comprimento máximo da lança"
+                    help=" Comprimento total da lança quando totalmente estendida"
                 )
                 
                 capacidade_alcance = st.number_input(
@@ -308,7 +308,7 @@ def front_page():
                     min_value=0.0,
                     step=100.0,
                     value=0.0,
-                    help="Capacidade máxima de içamento com a lança totalmente estendida"
+                    help=" Peso máximo que o guindaste pode levantar com a lança totalmente estendida"
                 )
                 
                 angulo_minimo_fabricante = st.number_input(
@@ -316,7 +316,7 @@ def front_page():
                     min_value=0.0,
                     max_value=90.0,
                     step=1.0,
-                    help="Ângulo mínimo seguro especificado pelo fabricante"
+                    help=" Menor ângulo permitido entre a lança e o solo, conforme manual do fabricante"
                 )
 
             submeter = st.form_submit_button("Calcular")
@@ -458,8 +458,14 @@ def front_page():
         st.subheader("📋 Dados da Empresa")
         col1, col2 = st.columns(2)
         with col1:
-            empresa = st.text_input("Nome da Empresa")
-            cnpj = st.text_input("CNPJ")
+            empresa = st.text_input(
+                "Nome da Empresa",
+                help=" Nome da empresa responsável pela operação"
+            )
+            cnpj = st.text_input(
+                "CNPJ",
+                help=" CNPJ da empresa (formato: XX.XXX.XXX/XXXX-XX)"
+            )
             
         with col2:
             telefone = st.text_input("Telefone")
@@ -469,7 +475,10 @@ def front_page():
         st.subheader("👤 Dados do Operador")
         col1, col2, col3 = st.columns(3)
         with col1:
-            nome_operador = st.text_input("Nome do Operador")
+            nome_operador = st.text_input(
+                "Nome do Operador",
+                help="Nome completo do operador certificado do guindaste"
+            )
             cpf_operador = st.text_input("CPF do Operador")
         
         with col2:
@@ -479,7 +488,8 @@ def front_page():
         with col3:
             certificacoes = st.multiselect(
                 "Certificações do Operador",
-                ["NR-11", "NR-12", "NR-18", "NR-35", "Outro"]
+                ["NR-11", "NR-12", "NR-18", "NR-35", "Outro"],
+                help=" Normas regulamentadoras que o operador possui certificação"
             )
 
         # Dados do Equipamento
@@ -499,7 +509,10 @@ def front_page():
         st.subheader("📄 Documentação")
         col1, col2 = st.columns(2)
         with col1:
-            num_art = st.text_input("Número da ART")
+            num_art = st.text_input(
+                "Número da ART",
+                help="Número da Anotação de Responsabilidade Técnica do engenheiro responsável"
+            )
             validade_art = st.date_input("Validade da ART")
         
         with col2:
