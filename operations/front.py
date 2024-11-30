@@ -343,78 +343,38 @@ def front_page():
     with tab2:
         st.header("Informações Complementares")
         
-        # Adicionar seção de Tabela de Carga do Fabricante
-        st.subheader("📊 Tabela de Carga do Fabricante")
-        col1, col2 = st.columns(2)
+        # Seção do Gráfico de Carga do Fabricante
+        st.subheader("📊 Gráfico de Carga do Fabricante")
         
-        with col1:
-            tabela_carga = st.file_uploader(
-                "Upload da Tabela de Carga",
-                type=['xlsx', 'xls', 'csv'],
-                help="Faça upload da tabela de carga fornecida pelo fabricante"
+        grafico_carga = st.file_uploader(
+            "Upload do Gráfico de Carga",
+            type=['png', 'jpg', 'jpeg'],
+            help="Faça upload da imagem do gráfico de carga do fabricante"
+        )
+        
+        if grafico_carga is not None:
+            st.image(
+                grafico_carga,
+                caption="Gráfico de Carga do Fabricante",
+                use_column_width=True
             )
-            
-            if tabela_carga is not None:
-                try:
-                    if tabela_carga.name.endswith('.csv'):
-                        df = pd.read_csv(tabela_carga)
-                    else:
-                        df = pd.read_excel(tabela_carga)
-                    
-                    st.success("✅ Tabela de carga carregada com sucesso!")
-                    
-                    # Mostrar a tabela
-                    st.subheader("Visualização da Tabela de Carga")
-                    st.dataframe(
-                        df,
-                        use_container_width=True,
-                        height=300
-                    )
-                    
-                    # Criar gráfico da tabela de carga
-                    if 'Raio' in df.columns and 'Capacidade' in df.columns:
-                        fig = px.line(
-                            df,
-                            x='Raio',
-                            y='Capacidade',
-                            title='Curva de Capacidade do Guindaste',
-                            labels={
-                                'Raio': 'Raio (m)',
-                                'Capacidade': 'Capacidade (kg)'
-                            }
-                        )
-                        st.plotly_chart(fig, use_container_width=True)
-                    
-                except Exception as e:
-                    st.error(f"Erro ao carregar a tabela: {str(e)}")
-                    st.info("""
-                    A tabela deve estar em um dos seguintes formatos:
-                    - CSV com colunas 'Raio' e 'Capacidade'
-                    - Excel com colunas 'Raio' e 'Capacidade'
-                    """)
+
+        st.info("""
+        **Instruções para o Gráfico de Carga:**
         
-        with col2:
-            st.info("""
-            **Instruções para Tabela de Carga:**
-            
-            1. A tabela deve conter as colunas:
-               - Raio (m)
-               - Capacidade (kg)
-               
-            2. Formatos aceitos:
-               - Excel (.xlsx, .xls)
-               - CSV (.csv)
-               
-            3. Certifique-se que:
-               - Os valores estão nas unidades corretas
-               - A tabela está formatada adequadamente
-               - Os dados estão consistentes
-               
-            4. A tabela será usada para:
-               - Validar capacidades
-               - Gerar curva de carga
-               - Verificar limites operacionais
-            """)
+        1. O gráfico deve:
+           - Ser a imagem oficial do manual do fabricante
+           - Estar legível e completo
+           - Corresponder ao modelo do guindaste
+        
+        2. Formatos aceitos:
+           - PNG
+           - JPG/JPEG
+        
+        3. Certifique-se que:
+           - As informações estão atualizadas
+           - Os dados correspondem ao modelo específico do equipamento
+        """)
 
         # Dados da Empresa
         st.subheader("📋 Dados da Empresa")
