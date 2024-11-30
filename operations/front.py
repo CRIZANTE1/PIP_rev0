@@ -35,111 +35,179 @@ def mostrar_instrucoes():
         ⚠️ **Importante**: Se a utilização ultrapassar 80%, será necessária aprovação da engenharia e segurança.
         """)
 
-def criar_diagrama_guindaste(raio_max, alcance_max):
-    """Cria um diagrama técnico simplificado do guindaste."""
+def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade_raio=None, angulo_minimo=45):
+    """Cria um diagrama técnico do guindaste com simulação de içamento."""
     
-    # Criar figura
     fig = go.Figure()
 
-    # Base do guindaste (retângulo)
+    # Calcula o comprimento real da lança
+    comprimento_lanca = min(np.sqrt(raio_max**2 + alcance_max**2), raio_max)
+    
+    # Calcula o ângulo atual da lança
+    angulo_atual = np.degrees(np.arctan2(alcance_max, raio_max))
+    
+    # Define o ângulo máximo seguro (para evitar que a carga fique sobre o guindaste)
+    angulo_maximo = 80  # Limita o ângulo máximo a 80 graus
+    
+    # Calcula o raio de trabalho seguro baseado na carga
+    if carga_total and capacidade_raio:
+        raio_trabalho_seguro = min((capacidade_raio/carga_total) * raio_max, raio_max)
+        # Garante que o raio de trabalho não seja menor que 20% do raio máximo
+        raio_trabalho_seguro = max(raio_trabalho_seguro, raio_max * 0.2)
+    else:
+        raio_trabalho_seguro = raio_max
+
+    # Calcula o ângulo seguro baseado no raio de trabalho
+    angulo_trabalho = np.degrees(np.arctan2(
+        np.sqrt(comprimento_lanca**2 - raio_trabalho_seguro**2),
+        raio_trabalho_seguro
+    ))
+    
+    # Define o ângulo seguro final (entre o mínimo do fabricante e máximo seguro)
+    angulo_seguro = min(max(angulo_minimo, angulo_trabalho), angulo_maximo)
+    
+    # Adiciona a posição atual da lança
+    x_atual = min(raio_max, comprimento_lanca * np.cos(np.radians(angulo_atual)))
+    y_atual = min(alcance_max, comprimento_lanca * np.sin(np.radians(angulo_atual)))
+    
+    # Adiciona a posição segura recomendada
+    x_seguro = min(raio_max, comprimento_lanca * np.cos(np.radians(angulo_seguro)))
+    y_seguro = min(alcance_max, comprimento_lanca * np.sin(np.radians(angulo_seguro)))
     fig.add_trace(go.Scatter(
-        x=[-1, 1, 1, -1, -1],
-        y=[-0.5, -0.5, 0, 0, -0.5],
+        x=[0, x_seguro],
+        y=[0, y_seguro],
+        mode='lines',
+        name=f'Posição Segura ({angulo_seguro:.1f}°)',
+        line=dict(color='green', width=2, dash='dash'),
+        hovertemplate=f'<b>Ângulo Seguro:</b> {angulo_seguro:.1f}°<extra></extra>'
+    ))
+    
+    # Desenha a base do guindaste
+    fig.add_trace(go.Scatter(
+        x=[-2, 2, 2, -2, -2],
+        y=[-1, -1, 0, 0, -1],
         mode='lines',
         name='Base do Guindaste',
-        line=dict(color='gray', width=3),
+        line=dict(color='darkgray', width=3),
         fill='toself'
     ))
-
-    # Ponto central (centro de rotação)
-    fig.add_trace(go.Scatter(
-        x=[0],
-        y=[0],
-        mode='markers+text',
-        name='Centro de Rotação',
-        marker=dict(color='black', size=10, symbol='circle-dot'),
-        text=['Guindaste'],
-        textposition='bottom center'
-    ))
-
-    # Torre do guindaste (linha vertical)
-    fig.add_trace(go.Scatter(
-        x=[0, 0],
-        y=[0, alcance_max],
-        mode='lines+text',
-        name='Torre',
-        line=dict(color='blue', width=3),
-        text=['', f'Altura: {alcance_max}m'],
-        textposition='middle left'
-    ))
-
-    # Lança do guindaste (linha diagonal)
-    fig.add_trace(go.Scatter(
-        x=[0, raio_max],
-        y=[alcance_max, 0],
-        mode='lines+text',
-        name='Lança',
-        line=dict(color='red', width=3),
-        text=['', f'Lança: {((raio_max**2 + alcance_max**2)**0.5):.1f}m'],
-        textposition='top center'
-    ))
-
-    # Linha do ângulo (arco)
-    raio_arco = min(raio_max, alcance_max) * 0.3  # Tamanho do arco
-    theta = np.linspace(0, np.arctan2(alcance_max, raio_max), 50)
-    x_arco = raio_arco * np.cos(theta)
-    y_arco = raio_arco * np.sin(theta)
     
+    # Desenha a lança na posição atual
+    cor_atual = 'blue' if angulo_minimo <= angulo_atual <= angulo_maximo else 'red'
     fig.add_trace(go.Scatter(
-        x=x_arco,
-        y=y_arco,
+        x=[0, x_atual],
+        y=[0, y_atual],
         mode='lines',
-        name='Ângulo',
-        line=dict(color='purple', width=2),
+        name=f'Posição Atual ({angulo_atual:.1f}°)',
+        line=dict(color=cor_atual, width=3),
+        hovertemplate=f'Ângulo: {angulo_atual:.1f}°<extra></extra>'
+    ))
+    
+    # Adiciona zona de perigo (sobre o guindaste)
+    theta = np.linspace(np.radians(angulo_maximo), np.pi/2, 50)
+    x_zona = np.minimum(raio_max, comprimento_lanca * np.cos(theta))
+    y_zona = np.minimum(alcance_max, comprimento_lanca * np.sin(theta))
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([[0], x_zona, [0]]),
+        y=np.concatenate([[0], y_zona, [0]]),
+        fill='toself',
+        fillcolor='rgba(255,0,0,0.1)',
+        name='Zona de Perigo (Sobre o Guindaste)',
+        line=dict(color='red', width=1, dash='dot'),
+        hovertemplate='<b>Zona de Perigo</b><br>Ângulo > 80°<extra></extra>'
     ))
 
-    # Calcular e mostrar o ângulo atual
-    angulo = np.degrees(np.arctan2(alcance_max, raio_max))
+    # Adiciona anotação para o ângulo da zona de perigo
     fig.add_annotation(
-        x=raio_arco/2,
-        y=raio_arco/2,
-        text=f'{angulo:.1f}°',
-        showarrow=False,
-        font=dict(size=14)
+        x=raio_max * 0.3,  # 30% do raio máximo
+        y=alcance_max * 0.8,  # 80% da altura máxima
+        text=f"Ângulo de Perigo: {angulo_maximo}°",
+        showarrow=True,
+        arrowhead=2,
+        arrowcolor="red",
+        arrowsize=1,
+        arrowwidth=2,
+        ax=50,  # Ajuste horizontal da seta
+        ay=-30,  # Ajuste vertical da seta
+        font=dict(
+            color="red",
+            size=12
+        ),
+        align="left"
     )
 
-    # Linha do raio máximo (linha horizontal)
+    # Adiciona linha do ângulo mínimo do fabricante
+    x_min = min(raio_max, comprimento_lanca * np.cos(np.radians(angulo_minimo)))
+    y_min = min(alcance_max, comprimento_lanca * np.sin(np.radians(angulo_minimo)))
     fig.add_trace(go.Scatter(
-        x=[0, raio_max],
-        y=[0, 0],
-        mode='lines+text',
-        name='Raio Máximo',
-        line=dict(color='green', width=2, dash='dash'),
-        text=['', f'Raio: {raio_max}m'],
-        textposition='bottom center'
-    ))
-
-    # Extensão máxima da lança
-    fig.add_trace(go.Scatter(
-        x=[0, alcance_max],
-        y=[alcance_max, 0],
-        mode='lines+text',
-        name='Extensão Máxima',
+        x=[0, x_min],
+        y=[0, y_min],
+        mode='lines',
+        name=f'Ângulo Mínimo ({angulo_minimo}°)',
         line=dict(color='orange', width=2, dash='dash'),
-        text=['', f'Extensão: {alcance_max}m'],
-        textposition='bottom right'
+        hovertemplate=f'<b>Ângulo Mínimo:</b> {angulo_minimo}°<extra></extra>'
     ))
 
-    # Configurar layout
+    # Atualiza o layout
     fig.update_layout(
-        title='Diagrama do Guindaste',
+        title=dict(
+            text='Diagrama do Guindaste',
+            x=0.5,
+            y=0.95,
+            xanchor='center',
+            font=dict(size=20)
+        ),
         xaxis_title='Distância (m)',
         yaxis_title='Altura (m)',
         showlegend=True,
-        xaxis=dict(range=[-2, max(raio_max, alcance_max) + 2]),
-        yaxis=dict(range=[-2, alcance_max + 2]),
+        legend=dict(
+            x=0.01,
+            y=0.99,
+            bgcolor='rgba(0,0,0,0)',  # Legenda sem fundo
+            bordercolor='rgba(0,0,0,0)',  # Sem borda
+            font=dict(
+                size=12,
+                color='white'  # Texto branco para melhor contraste
+            )
+        ),
+        xaxis=dict(
+            range=[-2, raio_max + 1],
+            dtick=1,
+            tick0=0,
+            title=dict(
+                text='Distância (m)',
+                font=dict(size=14),
+                standoff=10
+            ),
+            gridcolor='rgba(128, 128, 128, 0.2)',
+            showgrid=True,
+            zeroline=True,
+            zerolinecolor='rgba(0, 0, 0, 0.5)',
+            zerolinewidth=1
+        ),
+        yaxis=dict(
+            range=[-2, alcance_max + 2],
+            title=dict(
+                text='Altura (m)',
+                font=dict(size=14),
+                standoff=10
+            ),
+            gridcolor='rgba(128, 128, 128, 0.2)',
+            showgrid=True,
+            zeroline=True,
+            zerolinecolor='rgba(0, 0, 0, 0.5)',
+            zerolinewidth=1
+        ),
         yaxis_scaleanchor="x",
-        yaxis_scaleratio=1
+        yaxis_scaleratio=1,
+        hoverlabel=dict(
+            bgcolor="rgba(0,0,0,0)",
+            font_size=12,
+            font_family="Arial"
+        ),
+        margin=dict(t=100, l=80, r=80, b=80),
+        width=800,
+        height=600
     )
 
     return fig
@@ -317,18 +385,28 @@ def front_page():
 
                     # Adicionar o diagrama técnico
                     if raio_max > 0 and alcance_max > 0:
-                        st.subheader("📊 Diagrama Técnico")
+                        st.subheader("📊 Simulação do Içamento")
                         try:
-                            fig = criar_diagrama_guindaste(raio_max, alcance_max)
+                            fig = criar_diagrama_guindaste(
+                                raio_max, 
+                                alcance_max,
+                                resultado['carga_total'],
+                                capacidade_raio,
+                                angulo_minimo_fabricante
+                            )
                             st.plotly_chart(fig, use_container_width=True)
                             
-                            # Adicionar explicação
-                            st.info("""
+                            st.info(f"""
                             **Legenda do Diagrama:**
-                            - **Torre (azul)**: Estrutura vertical do guindaste
-                            - **Lança (vermelho)**: Braço do guindaste
-                            - **Linha Amarela**: Referência de 45° (ângulo mínimo seguro)
-                            - **Ângulo Atual**: Verde se ≥ 45°, Vermelho se < 45°
+                            - **Linha Laranja**: Ângulo mínimo do fabricante ({angulo_minimo_fabricante}°)
+                            - **Linha Azul**: Posições seguras da lança
+                            - **Linha Vermelha**: Posições abaixo do ângulo mínimo
+                            - **Linha Pontilhada Vermelha**: Limite de capacidade
+                            
+                            ⚠️ **Importante:**
+                            - Mantenha a operação acima do ângulo mínimo do fabricante
+                            - Observe o limite de capacidade indicado
+                            - Considere as condições do local e do tempo
                             """)
                         except Exception as e:
                             st.error(f"Erro ao gerar o diagrama: {str(e)}")
