@@ -213,13 +213,13 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
     return fig
 
 def front_page():
-    st.title("Calculadora de Carga para Guindaste")
+    st.title("Calculadora de Carga")
     
     # Mostra as instruções
     mostrar_instrucoes()
     
     # Criando abas para organizar melhor a interface
-    tab1, tab2 = st.tabs(["📝 Dados do Içamento", "🏗️ Informações do Guindaste"])
+    tab1, tab2 = st.tabs(["📝 Dados do Içamento", "🏗️ Informações do Guindauto"])
 
     with tab1:
         # Container para manter a organização visual

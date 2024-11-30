@@ -9,11 +9,12 @@ def configurar_pagina():
         initial_sidebar_state="auto",
         menu_items={
             'Get Help': 'https://www.streamlit.io/community',
-            'Report a bug': "mailto:seu-email@exemplo.com",
+            'Report a bug': "***********",
             'About': """
-            ## Calculadora de Carga para Guindaste
+            ## Calculadora de Carga para Guindauto
             
-            Esta aplicação calcula e valida cargas para operações de içamento com guindastes.
+            Esta aplicação calcula e valida cargas para operações de içamento de carga com guindaste e guindauto, 
+            o plano rigging não deve ser descartado.
             
             * Calcula margens de segurança
             * Valida capacidades do guindaste
