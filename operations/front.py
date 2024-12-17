@@ -48,7 +48,6 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
     
     if carga_total and capacidade_raio:
         raio_trabalho_seguro = min((capacidade_raio/carga_total) * raio_max, raio_max)
-        # Garante que o raio de trabalho não seja menor que 20% do raio máximo
         raio_trabalho_seguro = max(raio_trabalho_seguro, raio_max * 0.2)
     else:
         raio_trabalho_seguro = raio_max
