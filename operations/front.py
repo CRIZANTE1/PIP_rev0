@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
-
+# --------------------- Instruções de uso --------------------
 def mostrar_instrucoes():
     with st.expander("📖 Como usar este aplicativo", expanded=True):
         st.markdown("""
@@ -35,21 +35,17 @@ def mostrar_instrucoes():
         ⚠️ **Importante**: Se a utilização ultrapassar 80%, será necessária aprovação da engenharia e segurança.
         """)
 
+
+# ------------------------------------ Diagrama ilustrativo -----------------------------------------
 def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade_raio=None, angulo_minimo=45):
     """Cria um diagrama técnico do guindaste com simulação de içamento."""
     
     fig = go.Figure()
-
-    # Calcula o comprimento real da lança
     comprimento_lanca = min(np.sqrt(raio_max**2 + alcance_max**2), raio_max)
-    
-    # Calcula o ângulo atual da lança
     angulo_atual = np.degrees(np.arctan2(alcance_max, raio_max))
+    angulo_maximo = 80  
     
-    # Define o ângulo máximo seguro (para evitar que a carga fique sobre o guindaste)
-    angulo_maximo = 80  # Limita o ângulo máximo a 80 graus
     
-    # Calcula o raio de trabalho seguro baseado na carga
     if carga_total and capacidade_raio:
         raio_trabalho_seguro = min((capacidade_raio/carga_total) * raio_max, raio_max)
         # Garante que o raio de trabalho não seja menor que 20% do raio máximo
@@ -57,20 +53,18 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
     else:
         raio_trabalho_seguro = raio_max
 
-    # Calcula o ângulo seguro baseado no raio de trabalho
+    
     angulo_trabalho = np.degrees(np.arctan2(
         np.sqrt(comprimento_lanca**2 - raio_trabalho_seguro**2),
         raio_trabalho_seguro
     ))
     
-    # Define o ângulo seguro final (entre o mínimo do fabricante e máximo seguro)
-    angulo_seguro = min(max(angulo_minimo, angulo_trabalho), angulo_maximo)
     
-    # Adiciona a posição atual da lança
+    angulo_seguro = min(max(angulo_minimo, angulo_trabalho), angulo_maximo)
     x_atual = min(raio_max, comprimento_lanca * np.cos(np.radians(angulo_atual)))
     y_atual = min(alcance_max, comprimento_lanca * np.sin(np.radians(angulo_atual)))
     
-    # Adiciona a posição segura recomendada
+    
     x_seguro = min(raio_max, comprimento_lanca * np.cos(np.radians(angulo_seguro)))
     y_seguro = min(alcance_max, comprimento_lanca * np.sin(np.radians(angulo_seguro)))
     fig.add_trace(go.Scatter(
@@ -82,7 +76,7 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         hovertemplate=f'<b>Ângulo Seguro:</b> {angulo_seguro:.1f}°<extra></extra>'
     ))
     
-    # Desenha a base do guindaste
+  
     fig.add_trace(go.Scatter(
         x=[-2, 2, 2, -2, -2],
         y=[-1, -1, 0, 0, -1],
@@ -92,7 +86,7 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         fill='toself'
     ))
     
-    # Desenha a lança na posição atual
+    
     cor_atual = 'blue' if angulo_minimo <= angulo_atual <= angulo_maximo else 'red'
     fig.add_trace(go.Scatter(
         x=[0, x_atual],
@@ -103,7 +97,7 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         hovertemplate=f'Ângulo: {angulo_atual:.1f}°<extra></extra>'
     ))
     
-    # Adiciona zona de perigo (sobre o guindaste)
+    
     theta = np.linspace(np.radians(angulo_maximo), np.pi/2, 50)
     x_zona = np.minimum(raio_max, comprimento_lanca * np.cos(theta))
     y_zona = np.minimum(alcance_max, comprimento_lanca * np.sin(theta))
@@ -117,18 +111,18 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         hovertemplate='<b>Zona de Perigo</b><br>Ângulo > 80°<extra></extra>'
     ))
 
-    # Adiciona anotação para o ângulo da zona de perigo
+ 
     fig.add_annotation(
-        x=raio_max * 0.3,  # 30% do raio máximo
-        y=alcance_max * 0.8,  # 80% da altura máxima
+        x=raio_max * 0.3,  
+        y=alcance_max * 0.8,  
         text=f"Ângulo de Perigo: {angulo_maximo}°",
         showarrow=True,
         arrowhead=2,
         arrowcolor="red",
         arrowsize=1,
         arrowwidth=2,
-        ax=50,  # Ajuste horizontal da seta
-        ay=-30,  # Ajuste vertical da seta
+        ax=50,  
+        ay=-30, 
         font=dict(
             color="red",
             size=12
@@ -136,7 +130,7 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         align="left"
     )
 
-    # Adiciona linha do ângulo mínimo do fabricante
+  
     x_min = min(raio_max, comprimento_lanca * np.cos(np.radians(angulo_minimo)))
     y_min = min(alcance_max, comprimento_lanca * np.sin(np.radians(angulo_minimo)))
     fig.add_trace(go.Scatter(
@@ -148,7 +142,7 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         hovertemplate=f'<b>Ângulo Mínimo:</b> {angulo_minimo}°<extra></extra>'
     ))
 
-    # Atualiza o layout
+    
     fig.update_layout(
         title=dict(
             text='Diagrama do Guindaste',
@@ -163,11 +157,11 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
         legend=dict(
             x=0.01,
             y=0.99,
-            bgcolor='rgba(0,0,0,0)',  # Legenda sem fundo
-            bordercolor='rgba(0,0,0,0)',  # Sem borda
+            bgcolor='rgba(0,0,0,0)',  
+            bordercolor='rgba(0,0,0,0)',  
             font=dict(
                 size=12,
-                color='white'  # Texto branco para melhor contraste
+                color='white' 
             )
         ),
         xaxis=dict(
@@ -215,18 +209,18 @@ def criar_diagrama_guindaste(raio_max, alcance_max, carga_total=None, capacidade
 def front_page():
     st.title("Calculadora de Carga")
     
-    # Mostra as instruções
+ 
     mostrar_instrucoes()
     
-    # Criando abas para organizar melhor a interface
+   
     tab1, tab2 = st.tabs(["📝 Dados do Içamento", "🏗️ Informações do Guindauto"])
 
     with tab1:
-        # Container para manter a organização visual
+        
         col1, col2 = st.columns(2)
         
         with col1:
-            # Radio button e mensagem fora do form
+          
             estado_equipamento = st.radio(
                 "Estado do Equipamento",
                 options=["Novo", "Usado"],
@@ -234,13 +228,13 @@ def front_page():
                 help="Escolha 'Novo' para 10% de margem ou 'Usado' para 25%"
             )
             
-            # Mensagem informativa que atualiza instantaneamente
+          
             if estado_equipamento == "Novo":
                 st.info("⚠️ Margem de segurança: 10% (equipamento novo)")
             else:
                 st.warning("⚠️ Margem de segurança: 25% (equipamento usado)")
 
-        # Form começa aqui
+       
         with st.form("formulario_carga"):
             col1, col2 = st.columns(2)
             
@@ -264,7 +258,7 @@ def front_page():
                 
                 st.info("ℹ️ O peso dos cabos será calculado automaticamente como 3% do peso a considerar")
 
-            # Dados do guindaste
+            
             st.subheader("Dados do Guindaste")
             col3, col4 = st.columns(2)
             
@@ -323,14 +317,13 @@ def front_page():
 
         if submeter and peso_carga > 0:
             try:
-                # Usa o estado do radio button de fora do form
+               
                 is_novo = estado_equipamento == "Novo"
                 resultado = calcular_carga_total(peso_carga, is_novo, peso_acessorios)
                 
-                # Mostra os resultados detalhados
+              
                 st.subheader("📊 Resultados do Cálculo")
                 
-                # Cria uma tabela com os resultados
                 st.table({
                     'Descrição': [
                         'Peso da carga',
@@ -350,7 +343,7 @@ def front_page():
                     ]
                 })
 
-                # Valida o guindaste
+               
                 if capacidade_raio > 0 and capacidade_alcance > 0:
                     validacao = validar_guindaste(
                         resultado['carga_total'],
@@ -360,7 +353,7 @@ def front_page():
                         alcance_max
                     )
                     
-                    # Mostra o resultado da validação
+                  
                     st.subheader("🎯 Resultado da Validação")
                     
                     if validacao['adequado']:
@@ -368,7 +361,7 @@ def front_page():
                     else:
                         st.error("⚠️ " + validacao['mensagem'])
                     
-                    # Mostra as porcentagens de utilização em um gráfico
+                  
                     col1, col2 = st.columns(2)
                     with col1:
                         st.metric(
@@ -383,7 +376,7 @@ def front_page():
                             help="Percentual da capacidade utilizada na extensão máxima"
                         )
 
-                    # Adicionar o diagrama técnico
+                   
                     if raio_max > 0 and alcance_max > 0:
                         st.subheader("📊 Simulação do Içamento")
                         try:
@@ -418,10 +411,11 @@ def front_page():
         elif submeter:
             st.warning("⚠️ Por favor, insira o peso da carga para realizar os cálculos.")
 
+    
+# ------------------------------------------------------------------------------------------------------------------------------
     with tab2:
         st.header("Informações Complementares")
         
-        # Seção do Gráfico de Carga do Fabricante
         st.subheader("📊 Gráfico de Carga do Fabricante")
         
         grafico_carga = st.file_uploader(
@@ -454,7 +448,6 @@ def front_page():
            - Os dados correspondem ao modelo específico do equipamento
         """)
 
-        # Dados da Empresa
         st.subheader("📋 Dados da Empresa")
         col1, col2 = st.columns(2)
         with col1:
@@ -471,7 +464,6 @@ def front_page():
             telefone = st.text_input("Telefone")
             email = st.text_input("E-mail")
 
-        # Dados do Operador
         st.subheader("👤 Dados do Operador")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -492,7 +484,6 @@ def front_page():
                 help=" Normas regulamentadoras que o operador possui certificação"
             )
 
-        # Dados do Equipamento
         st.subheader("🏗️ Dados do Equipamento")
         col1, col2 = st.columns(2)
         with col1:
@@ -505,7 +496,7 @@ def front_page():
             ultima_manutencao = st.date_input("Data Última Manutenção")
             proxima_manutencao = st.date_input("Data Próxima Manutenção")
 
-        # Documentação
+       
         st.subheader("📄 Documentação")
         col1, col2 = st.columns(2)
         with col1:
@@ -519,7 +510,7 @@ def front_page():
             st.file_uploader("Upload da ART", type=['pdf'])
             st.file_uploader("Certificado de Calibração", type=['pdf'])
 
-        # Observações
+    
         st.subheader("📝 Observações")
         observacoes = st.text_area(
             "Observações Gerais",
@@ -527,7 +518,7 @@ def front_page():
             help="Adicione informações relevantes sobre o equipamento, operação ou condições especiais"
         )
 
-        # Botão para salvar
+    
         col1, col2 = st.columns(2)
         with col1:
             if st.button("💾 Salvar Informações"):
@@ -536,5 +527,5 @@ def front_page():
         with col2:
             if st.button("🔄 Limpar Formulário"):
                 st.warning("⚠️ Formulário limpo!")
-                # Aqui você pode adicionar lógica para limpar os campos
+              
 
