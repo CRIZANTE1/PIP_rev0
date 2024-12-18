@@ -5,18 +5,11 @@ def calcular_carga_total(peso_carga, equipamento_novo=True, peso_acessorios=0):
 
     if peso_carga <= 0:
         raise ValueError("O peso da carga deve ser um valor positivo.")
-
-    # Para definir a margem de segurança: 10% para novo, 25% para usado #
+        
     margem_seguranca = 0.10 if equipamento_novo else 0.25
     peso_seguranca = peso_carga * margem_seguranca
-    
-    # Peso a ser considerado (peso da carga + margem de segurança) #
     peso_considerar = peso_carga + peso_seguranca
-    
-    # 3% do peso a considerar para cabos e equipamentos ( Ou seja todos os equipamentos que são originais da máquina ) #
     peso_cabos = peso_considerar * 0.03
-
-    # Carga total 
     carga_total = peso_considerar + peso_acessorios + peso_cabos
 
     return {
@@ -36,7 +29,6 @@ def validar_guindaste(carga_total, capacidade_raio, capacidade_alcance_max, raio
         raise ValueError("A carga total deve ser um valor positivo.")
     if capacidade_raio <= 0 or capacidade_alcance_max <= 0:
         raise ValueError("As capacidades do guindaste devem ser valores positivos.")
-
    
     angulo = np.degrees(np.arctan2(alcance_max, raio_max))
     angulo_seguro = angulo >= 45 
@@ -44,7 +36,6 @@ def validar_guindaste(carga_total, capacidade_raio, capacidade_alcance_max, raio
     porcentagem_raio = (carga_total / capacidade_raio) * 100
     porcentagem_alcance_max = (carga_total / capacidade_alcance_max) * 100
     porcentagem_segura = max(porcentagem_raio, porcentagem_alcance_max)
-
     
     if not angulo_seguro:
         mensagem = "ATENÇÃO: Ângulo da lança inferior a 45 graus. Operação não segura."
