@@ -1,5 +1,6 @@
 import streamlit as st
 from operations.front import front_page
+from auth import show_login_page, show_user_header, show_logout_button, is_user_logged_in
 
 def configurar_pagina():
     st.set_page_config(
@@ -27,7 +28,11 @@ def configurar_pagina():
 
 def main():
     configurar_pagina()
-    front_page()
+    if show_login_page():
+        st.session_state.user = st.session_state.user if 'user' in st.session_state else None
+        show_user_header()
+        show_logout_button()
+        front_page()
 
 if __name__ == "__main__":
     main()
