@@ -20,7 +20,7 @@ Este projeto é uma aplicação Streamlit para auxiliar no cálculo e validaçã
 ## Instalação
 
 1.  Consultar dev.
-    ```
+   
 
 ## Configuração de Login OIDC
 
@@ -68,7 +68,7 @@ O aplicativo será aberto no seu navegador padrão em `http://localhost:8501`.
 
 ## Licença
 
-Este projeto está sob a licença [Nome da Licença, ex: MIT]. Veja o arquivo `LICENSE.txt` para mais detalhes.
+Este projeto está sob a licença restrita. Veja o arquivo `LICENSE.txt` para mais detalhes.
 
 ## Contato
 
